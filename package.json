@@ -1,6 +1,6 @@
 {
   "name": "load-env",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Load your environment configuration in a easy way and only one time.",
   "main": "index.js",
   "directories": {

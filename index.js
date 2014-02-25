@@ -48,7 +48,7 @@ function load (environment, path) {
     environment = null;
   }
   
-  path = path || __dirname + '/config';
+  path = path || './config';
   environment = environment || args().env || 'development';
 
   var files = fs.readdirSync(path);
