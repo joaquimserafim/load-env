@@ -1,0 +1,34 @@
+{
+  "name": "load-env",
+  "version": "1.0.0",
+  "description": "Load your environment configuration in a easy way and only one time.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "tape test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/joaquimserafim/load-env"
+  },
+  "keywords": [
+    "environment",
+    "configurations",
+    "config",
+    "env"
+  ],
+  "author": "@joaquimserafim",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/joaquimserafim/load-env/issues"
+  },
+  "homepage": "https://github.com/joaquimserafim/load-env",
+  "dependencies": {
+    "json-tu-file": "^1.1.0"
+  },
+  "devDependencies": {
+    "tape": "^2.5.0"
+  }
+}

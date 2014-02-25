@@ -1,0 +1,20 @@
+{
+  "mongodb": {
+    "name": "MONGODB_URL",
+    "format": "mongodb://%s:%s@%s/%s?%s",
+    "value" : {
+      "user": "xpto",
+      "pwd": "111",
+      "host": "localhost",
+      "db": "lilidb",
+      "extra": "numberOfRetries=10&retryMiliSeconds=10000"
+    }
+  },
+  "app_port": {
+    "name": "APP_PORT",
+    "format": "%d",
+    "value" : {
+      "port": 5000
+    }
+  }
+}
