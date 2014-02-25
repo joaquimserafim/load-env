@@ -29,10 +29,10 @@ Load your environment configuration in a easy way and only one time.
    
    **Example:**
    
-*    config / 
-*        development.json
-         heroku.json
-         local.json    
+      config/ 
+          development.json
+          heroku.json
+          local.json    
     
 
 
@@ -41,12 +41,12 @@ Load your environment configuration in a easy way and only one time.
 
  {"config_name": {"name": "", "format": "", "value":""}}
  
-*  name: var name
-*  format: placeholders
-*       %s - String
+    name: var name
+    format: placeholders
+        %s - String
         %d - Number (both integer and float)
         %j - JSON
-*  value: object with the values to replace the placeholders
+    value: object with the values to replace the placeholders
     
    **Example**
     
