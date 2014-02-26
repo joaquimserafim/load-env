@@ -72,7 +72,7 @@ Load your environment configuration in a easy way and only one time.
         
        // now in your code
         
-       require('load-env').load();
+       require('load-env')(); // var load = require('load-env'); load();
                
        console.log(process.env.MONGODB_URL);
        console.log(process.env.APP_PORT);
