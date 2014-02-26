@@ -1,6 +1,5 @@
 {
-  "mongodb": {
-    "name": "MONGODB_URL",
+  "MONGODB_URL": {
     "format": "mongodb://%s:%s@%s/%s?%s",
     "value" : {
       "user": "xpto",
@@ -10,8 +9,7 @@
       "extra": "numberOfRetries=10&retryMiliSeconds=10000"
     }
   },
-  "app_port": {
-    "name": "APP_PORT",
+  "APP_PORT": {
     "format": "%d",
     "value" : {
       "port": 4000

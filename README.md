@@ -8,7 +8,7 @@ Load your environment configuration in a easy way and only one time.
 
 
 
-**V1**
+**V1.1**
 
 ####API
 
@@ -39,10 +39,9 @@ Load your environment configuration in a easy way and only one time.
 
 ####JSON
 
- {"config_name": {"name": "", "format": "", "value":""}}
+ {"var_name": {"format": "", "value":""}}
  
-    name: var name
-    format: placeholders
+    format: value with placeholders
         %s - String
         %d - Number (both integer and float)
         %j - JSON
@@ -51,8 +50,7 @@ Load your environment configuration in a easy way and only one time.
    **Example**
     
         {
-          "mongodb": {
-            "name": "MONGODB_URL",
+          "MONGODB_URL": {
             "format": "mongodb://%s:%s@%s/%s?%s",
             "value" : {
               "user": "xpto",
@@ -62,8 +60,7 @@ Load your environment configuration in a easy way and only one time.
               "extra": "numberOfRetries=10&retryMiliSeconds=10000"
             }
           },
-          "app_port": {
-            "name": "APP_PORT",
+          "APP_PORT": {
             "format": "%d",
             "value" : {
               "port": 4000

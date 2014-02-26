@@ -64,7 +64,7 @@ function load (environment, path) {
   });
 
   for (var k in configs) {
-    var name = configs[k].name;
+    var name = k;
     process.env[name] = sprintf(configs[k].format, toArray(configs[k].value));
   }
   
