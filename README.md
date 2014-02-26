@@ -1,6 +1,6 @@
 # load-env
 
-Load your environment configuration in a easy way and only one time.
+Load your environment configuration in a easy way and call in your code only one time and will be available through "process.env".
 
 <a href="https://nodei.co/npm/load-env/"><img src="https://nodei.co/npm/load-env.png?downloads=true"></a>
 
@@ -12,7 +12,7 @@ Load your environment configuration in a easy way and only one time.
 
 ####API
 
-    var load = require('load-env') || require('load-env').load()
+    var load = require('load-env') || require('load-env')()
     
     load([environment], [config_path])
     
@@ -72,7 +72,7 @@ Load your environment configuration in a easy way and only one time.
         
        // now in your code
         
-       require('load-env')(); // var load = require('load-env'); load();
+       require('load-env')(); // var load = require('load-env'); load();  
                
        console.log(process.env.MONGODB_URL);
        console.log(process.env.APP_PORT);
