@@ -54,7 +54,7 @@ function load (environment, path) {
   var files = fs.readdirSync(path);
 
   files.forEach(function cb_each (file) {
-    if (file.indexOf(environment) === -1) return;
+    if (environment !== file.replace('.json', '')) return;
 
     var data = JSONFile.readFileSync(path + '/' + file);
     

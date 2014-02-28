@@ -9,7 +9,7 @@
       "extra": "numberOfRetries=10&retryMiliSeconds=10000"
     }
   },
-  "APP_PORT": {
+  "PORT": {
     "format": "%d",
     "value" : {
       "port": 4000
