@@ -1,4 +1,5 @@
 var assert = require('assert');
+var JSONFile = require('json-tu-file');
 var load = require('../');
 
 
@@ -6,7 +7,7 @@ function development (cb) {
   console.log('# load development env');
 
   load('./test/config');
-  
+
   assert.deepEqual(process.env.MONGODB_URL, 'mongodb://xpto:111@localhost/lilidb?numberOfRetries=10&retryMiliSeconds=10000', 'Your db conn str is ' + process.env.MONGODB_URL);
 
   assert.deepEqual(Number(process.env.APP_PORT), 5000, 'Your web app run @ ' +
@@ -28,8 +29,15 @@ function heroku (cb) {
   cb(null, 'keroku');
 }
 
+function changeFileAndReload (cb) {
+   console.log('# load normal env and change the configurations in file and reload the env');
 
-[development, heroku].forEach(function (test) {
+
+   cb(null, 'changeFileAndReload');
+}
+
+
+[development, heroku, changeFileAndReload].forEach(function (test) {
   test(function (err, t) {
     console.log('# finish ' + t);
     console.log();
