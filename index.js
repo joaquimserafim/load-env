@@ -1,7 +1,6 @@
 var fs = require('fs');
 var JSONFile = require('json-tu-file');
 var Format = require('util').format;
-var EventEmitter = require('tiny-eventemitter');
 
 // format string from array source
 function sprintf (format, array) {
@@ -36,13 +35,17 @@ function args () {
   return obj;
 }
 
-function watchFile (file) {
-  fs.watch(file, function (event, filename) {
-    console.info(event, filename);
+// when pass true in the argument "reload" then
+// going to watch the current env file for changes
+function watchFile (env, path, file) {
+  fs.watch(file, function (e) {
+    // stop watching
+    this.close();
+    // load new environment
+    if (e === 'change') load(env, path, true);
   });
 }
 
-var em = new EventEmitter();
 
 module.exports = load;
 
@@ -59,8 +62,6 @@ function load (environment, path, reload) {
   environment = environment || args().env || 'development';
   reload = reload || false;
 
-
-
   var files = fs.readdirSync(path);
 
   files.forEach(function (file) {
@@ -71,9 +72,7 @@ function load (environment, path, reload) {
     if (!data) throw new Error('Uncaught error: check the json structure in config file');
 
     // allow reload the config by updating the file
-    if (reload) {
-      watchFile(path + '/' + file);
-    }
+    if (reload) watchFile(environment, path, path + '/' + file);
 
     configs = data;
   });

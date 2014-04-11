@@ -30,13 +30,37 @@ function heroku (cb) {
 }
 
 function changeFileAndReload (cb) {
-   console.log('# load normal env and change the configurations in file and reload the env');
+ console.log('# load normal env and change the configurations in file and reload the env');
 
+  load('development', './test/config', true);
 
-   cb(null, 'changeFileAndReload');
+  var new_config = {
+    MONGODB_URL: {
+      format: 'mongodb://%s:%s@%s/%s',
+      value: {
+        user: 'test',
+        pwd: 'test',
+        host: 'localhost',
+        db: 'test'
+      }
+    }
+  };
+
+  setTimeout(function () {
+    JSONFile.writeFileSync(new_config, './test/config/development.json', {encoding: 'ascii'});
+
+    setTimeout(function () {
+      assert.deepEqual(process.env.MONGODB_URL, 'mongodb://test:test@localhost/test', 'Your db conn str is ' + process.env.MONGODB_URL);
+
+      cb(null, 'changeFileAndReload');
+      // must call exit fs.watch will be watch for changes in a file
+      process.exit(0);
+    }, 500);
+
+  }, 500);
 }
 
-
+// run flow
 [development, heroku, changeFileAndReload].forEach(function (test) {
   test(function (err, t) {
     console.log('# finish ' + t);
