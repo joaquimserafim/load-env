@@ -8,47 +8,49 @@ Load your environment configuration in a easy way and call in your code only one
 
 
 
-**V1.1**
+**V1.2**
+
+Now can reload the environment configuration by change the config file.
 
 ####API
 
     var load = require('load-env') || require('load-env')()
-    
+
     load([environment], [config_path])
-    
-    
+
+
     or from CLI: node my_app --env heroku
-    
+
     in your app: load();
-    
-    --env is mandatory in CLI 
-   
-   
+
+    --env is mandatory in CLI
+
+
    **config** folder must be in your application current directory or can use [path]
    to define the localization of your config files, and the files must have the exactly name as your environment (heroku.json will be env heroku).
-   
+
    **Example:**
-   
-      config/ 
+
+      config/
           development.json
           heroku.json
-          local.json    
-    
+          local.json
+
 
 
 
 ####JSON
 
  {"var_name": {"format": "", "value":""}}
- 
+
     format: value with placeholders
         %s - String
         %d - Number (both integer and float)
         %j - JSON
     value: object with the values to replace the placeholders
-    
+
    **Example**
-    
+
         {
           "MONGODB_URL": {
             "format": "mongodb://%s:%s@%s/%s?%s",
@@ -67,16 +69,16 @@ Load your environment configuration in a easy way and call in your code only one
             }
           }
         }
-        
-        
-        
+
+
+
        // now in your code
-        
-       require('load-env')(); // var load = require('load-env'); load();  
-               
+
+       require('load-env')(); // var load = require('load-env'); load();
+
        console.log(process.env.MONGODB_URL);
        console.log(process.env.APP_PORT);
-       
-       
+
+
        // CLI
        node my_app --env heroku
