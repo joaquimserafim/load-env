@@ -2,14 +2,16 @@ var fs = require('fs');
 var JSONFile = require('json-tu-file');
 var format = require('util').format;
 var isJSON = require('is-json');
+var chokidar = require('chokidar');
 
 
 // format string from array source
-function sprintf (form, array) {
+function sprintf (fstr, array) {
+  // check the formatted string is for JSON and confirm is a valid JSON
   array.forEach(function (value) {
-    form = isJSON(value, true) ? value : format(form, value);
+    fstr = format(fstr, value);
   });
-  return form;
+  return fstr;
 }
 
 function toArray (obj) {
@@ -40,11 +42,10 @@ function args () {
 // watch the env file if the arg `reload`
 // has the value true
 function watchFile (env, path, file) {
-  fs.watch(file, function (e) {
-    // stop watching
-    this.close();
-    // load new environment
-    if (e === 'change') load(env, path, true);
+  var watcher = chokidar.watch(file, {ignored: /[\/\\]\./, persistent: true});
+  watcher.on('change', function () {
+    watcher.close();
+    load(env, path, true);
   });
 }
 
@@ -54,7 +55,7 @@ module.exports = load;
 function load (environment, path, reload) {
   var configs = {};
 
-  // in case of pass only the path
+  // in case passing only the path
   if (fs.existsSync(environment)) {
     path = environment;
     environment = null;
@@ -79,9 +80,8 @@ function load (environment, path, reload) {
   });
 
   Object.keys(configs).forEach(function (k) {
-    var name = k;
-    process.env[name] = sprintf(configs[k].format, toArray(configs[k].value));
+    process.env[k] = sprintf(configs[k].format, toArray(configs[k].value));
   });
 
-  return 1;
+   return 1;
 }

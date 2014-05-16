@@ -1,43 +1,59 @@
-var assert = require('assert');
+var test = require('tape');
 var JSONFile = require('json-tu-file');
 var load = require('../');
 
+var conf = {
+  dev: {
+    0: 'mongodb://xpto:111@localhost/lilidb?numberOfRetries=10&retryMiliSeconds=10000',
+    1: 5000,
+    2: {width: 1000, height: 600, 'min-width': 800, 'min-height': 600}
+  },
+  heroku: {
+    0: 'mongodb://xpto:password@ec2-22-197-555-120.compute-100.' +
+    'amazonaws.com/lilidb?numberOfRetries=10&retryMiliSeconds=10000',
+    1: 4000
+  },
+  reload: {
+    0:  'mongodb://test:test@localhost/test'
+  }
+};
 
-function development (cb) {
-  console.log('#load development env');
 
+// test 1
+test('#development', function (t) {
+  t.plan(3);
   load('./test/config');
 
-  assert.deepEqual(process.env.MONGODB_URL,
-                   'mongodb://xpto:111@localhost/lilidb?numberO' +
-                   'fRetries=10&retryMiliSeconds=10000',
-                   'Your db conn str is ' + process.env.MONGODB_URL);
+  t.deepEqual(process.env.MONGODB_URL,
+              conf.dev[0],
+              'mongoDB string conn should be equal');
 
-  assert.deepEqual(Number(process.env.APP_PORT), 5000, 'Your web app run @ ' +
-    process.env.APP_PORT);
+  t.deepEqual(Number(process.env.APP_PORT),
+              conf.dev[1],
+              'ports numbers should be equal');
+console.log(process.env.WINDOW_SIZE);
+  t.deepEqual(process.env.WINDOW_SIZE,
+              JSON.stringify(conf.dev[2]),
+              'JSON objects should be equal');
+});
 
-  cb(null, 'development');
-}
-
-function heroku (cb) {
-  console.log('#load heroku env');
-
+// test 2
+test('#heroku', function (t) {
+  t.plan(2);
   load('heroku', './test/config');
 
-  assert.deepEqual(process.env.MONGODB_URL,
-                   'mongodb://xpto:password@ec2-22-197-555-120.compute-100.' +
-                   'amazonaws.com/lilidb?numberOfRetries=10&retryMiliSeconds=10000',
-                   'Your db conn str is ' + process.env.MONGODB_URL);
+  t.deepEqual(process.env.MONGODB_URL,
+             conf.heroku[0],
+             'mongoDB string conn should be equal');
 
-  assert.deepEqual(Number(process.env.PORT), 4000, 'Your web app run @ ' +
-    process.env.PORT);
+  t.deepEqual(Number(process.env.APP_PORT),
+             conf.heroku[1],
+             'ports numbers should be equal');
+});
 
-  cb(null, 'keroku');
-}
-
-function changeFileAndReload (cb) {
-  console.log('#load normal env and change the configs in file and reload the env');
-
+// test 3
+test('#updated&reload', function (t) {
+  t.plan(1);
   load('development', './test/config', true);
 
   var new_config = {
@@ -52,28 +68,18 @@ function changeFileAndReload (cb) {
     }
   };
 
+  // give some timeout
   setTimeout(function () {
+    // write new configuration
     JSONFile.writeFileSync(new_config,
                            './test/config/development.json',
                            {encoding: 'ascii'});
 
     setTimeout(function () {
-      assert.deepEqual(process.env.MONGODB_URL,
-                       'mongodb://test:test@localhost/test',
-                       'Your db conn str is ' + process.env.MONGODB_URL);
-
-      cb(null, 'changeFileAndReload');
-      // must call exit fs.watch will be watch for changes in a file
-      process.exit(0);
-    }, 500);
-
-  }, 500);
-}
-
-// run flow
-[development, heroku].forEach(function (test) {
-  test(function (err, t) {
-    console.log('# finish ' + t);
-    console.log();
-  });
+      t.deepEqual(process.env.MONGODB_URL,
+                  conf.reload[0],
+                  'mongoDB should have the new conn string');
+      setTimeout(function () {process.exit(0);}, 200);
+    }, 200);
+  }, 200);
 });
