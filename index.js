@@ -1,13 +1,15 @@
 var fs = require('fs');
 var JSONFile = require('json-tu-file');
-var Format = require('util').format;
+var format = require('util').format;
+var isJSON = require('is-json');
+
 
 // format string from array source
-function sprintf (format, array) {
+function sprintf (form, array) {
   array.forEach(function (value) {
-    format = Format(format, value);
+    form = isJSON(value, true) ? value : format(form, value);
   });
-  return format;
+  return form;
 }
 
 function toArray (obj) {
@@ -35,8 +37,8 @@ function args () {
   return obj;
 }
 
-// when pass true in the argument "reload" then
-// going to watch the current env file for changes
+// watch the env file if the arg `reload`
+// has the value true
 function watchFile (env, path, file) {
   fs.watch(file, function (e) {
     // stop watching
@@ -62,9 +64,8 @@ function load (environment, path, reload) {
   environment = environment || args().env || 'development';
   reload = reload || false;
 
-  var files = fs.readdirSync(path);
 
-  files.forEach(function (file) {
+  fs.readdirSync(path).forEach(function (file) {
     if (environment !== file.replace('.json', '')) return;
 
     var data = JSONFile.readFileSync(path + '/' + file);
@@ -77,11 +78,10 @@ function load (environment, path, reload) {
     configs = data;
   });
 
-
-  for (var k in configs) {
+  Object.keys(configs).forEach(function (k) {
     var name = k;
     process.env[name] = sprintf(configs[k].format, toArray(configs[k].value));
-  }
+  });
 
   return 1;
 }

@@ -14,5 +14,16 @@
     "value" : {
       "port": 5000
     }
+  },
+  "WINDOW_SIZE": {
+    "format": "%j",
+    "value": {
+      "sizes": {
+        "width": 1000,
+        "height": 600,
+        "min-width": 800,
+        "min-height": 600
+      }
+    }
   }
 }
