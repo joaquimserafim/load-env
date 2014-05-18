@@ -10,7 +10,7 @@ Load your environment configuration in a easy way and call in your code only one
 
 **V1.3**
 
-Now can reload the environment configuration by change the config file.
+It's possible to reload the environment configuration by change the config file.
 Attention, process.env convert all values to string,
 must cast in case isn't a string, ex:
 	
@@ -28,6 +28,14 @@ must cast in case isn't a string, ex:
 	
 	console.log(JSON.parse(process.env.NET_OPTIONS));
 	// is gonna be { port: 4000, address: 'localhost' }
+	
+
+If wants to get the primitive value of the specified object can use `process.loadenv.'key'` and don't need to do any conversion.
+
+	 typeof process.loadenv.MONGODB_URL === 'string'
+	 typeof process.loadenv.APP_PORT === 'number'
+	 isJSON(process.loadenv.WINDOW_SIZE, true)
+
 
 ####API
 
@@ -97,13 +105,53 @@ in your app just need to make the require and call `load();`
 
        require('load-env')(); // var load = require('load-env'); load();
 
-       console.log(process.env.MONGODB_URL);
-       console.log(process.env.APP_PORT);
-
-
+       console.log(process.env.MONGODB_URL); // 'conn_str'
+       console.log(process.env.APP_PORT); // '4000'
+		
+	OR
+	   console.log(process.loadenv.MONGODB_URL); // 'conn_str'
+       console.log(process.loadenv.APP_PORT); // 4000
+       
        // CLI
        node my_app --env heroku
        
        
 
 #### Example with JSON objects in the configuration
+
+	{
+	  "WINDOW_SIZE": {
+	    "format": "%j",
+	    "value": {
+	      "sizes": {
+	        "width": 1000,
+	        "height": 600,
+	        "min-width": 800,
+	        "min-height": 600
+	      }
+	    }
+	  }
+	}	  
+	
+	
+// we are using %j to specify is a JSON
+
+call **process.loadenv.WINDOW_SIZE** will return the the JSON already parsed
+
+`{ width: 1000, height: 600, 'min-width': 800, 'min-height': 600 }`
+
+call **process.env.WINDOW_SIZE** must use the **JSON.parse**
+
+
+
+
+
+	
+
+	
+	
+	
+	
+	
+	
+	

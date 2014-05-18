@@ -5,6 +5,7 @@ var isJSON = require('is-json');
 var chokidar = require('chokidar');
 var arrToObject = require('array-to-object');
 
+// HELP FUNCTIONS
 
 // format string from array source
 function sprintf (fstr, array) {
@@ -41,6 +42,7 @@ function args () {
 }
 
 
+// init Load only onces and don't let call directly
 module.exports = function (options) {
   // legacy, maintain 3 args
   if (!isJSON(options, true)) {
@@ -60,40 +62,55 @@ module.exports = function (options) {
 // (environment, path, reload)
 // {environment: 'environment', path: 'path', reload: true || false}
 function Load (options) {
-  this._options = {
-    path: options.path || './config',
-    environment: options.environment || args().env || 'development',
-    reload: options.reload || false
-  };
-
-  this.init();
-}
-
-Load.prototype.init = function () {
   var self = this;
-  var configs = {};
+  self._path = options.path || './config';
+  self._environment = options.environment || args().env || 'development';
+  self._reload = options.reload || false;
 
-  fs.readdirSync(self._options.path).forEach(function (file) {
-    if (self._options.environment !== file.replace('.json', ''))
-      return null;
-
-    var data = JSONFile.readFileSync(self._options.path + '/' + file);
-    if (!data) throw new Error('Uncaught error: check the json structure in config file!');
-     configs = data;
-  });
-
-  Object.keys(configs).forEach(function (k) {
-    process.env[k] = sprintf(configs[k].format, toArray(configs[k].value));
-  });
-
-  // allow to reload the env configuration when the current file is updated
-  if (self._options.reload) {
-    var file = this._options.path + '/' + this._options.environment + '.json';
+  // reload the env configuration when the current file is updated
+  if (self._reload) {
+    var file = self._path + '/' + self._environment + '.json';
     self._watcher = chokidar.watch(file, {ignored: /[\/\\]\./, persistent: true});
     self._watcher.on('change', function () {
       self._watcher.close();
-       self.init();
+      Load.init.call(self);
     });
   }
-};
 
+  // normal load
+  Load.init.call(self);
+}
+
+
+Load.init = function () {
+  var self = this;
+  var configs = {};
+
+  fs.readdirSync(self._path).forEach(function (file) {
+    if (self._environment !== file.replace('.json', ''))
+      return null;
+
+    var data = JSONFile.readFileSync(self._path + '/' + file);
+    if (!data) throw new Error('Uncaught error: check the json structure in config file!');
+    configs = data;
+  });
+
+  // process.loadenv[key] let returns the primitive value of the specified
+  // object for that key
+  // %s - String.
+  // %d - Number (both integer and float).
+  // %j - JSON.
+  process.loadenv = {
+    __add__: function (key, type, value) {
+      this[key] = type === '%d' && !isNaN(value) ? Number(value) :
+        type === '%j' && isJSON(value) ? JSON.parse(value) : value ;
+    }
+  };
+
+  // load values in process.env and into process.loadenv
+  Object.keys(configs).forEach(function (k) {
+    var val = sprintf(configs[k].format, toArray(configs[k].value));
+    process.loadenv.__add__(k, configs[k].format, val);
+    process.env[k] = val;
+  });
+};

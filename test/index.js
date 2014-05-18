@@ -1,6 +1,7 @@
 var test = require('tape');
 var JSONFile = require('json-tu-file');
 var load = require('../');
+var isJSON = require('is-json');
 
 var conf = {
   dev: {
@@ -66,7 +67,18 @@ test('#heroku', function (t) {
              'ports numbers should be equal');
 });
 
+
 // test 3
+test('#using process.loadenv to load the primitive value of the specified object', function (t) {
+  t.plan(3);
+  load('development', './test/config');
+
+  t.deepEqual(typeof process.loadenv.MONGODB_URL, 'string', 'should be a string');
+  t.deepEqual(typeof process.loadenv.APP_PORT, 'number', 'should be a number');
+  t.deepEqual(isJSON(process.loadenv.WINDOW_SIZE, true), true, 'should be a JSON');
+});
+
+// test 4
 test('#updated&reload', function (t) {
   t.plan(1);
   load('development', './test/config', true);
