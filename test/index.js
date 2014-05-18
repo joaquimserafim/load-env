@@ -19,6 +19,21 @@ var conf = {
 };
 
 
+var json = {
+  "WINDOW_SIZE": {
+    "format": "%j",
+    "value": {
+      "sizes": {
+        "width": 1000,
+        "height": 600,
+        "min-width": 800,
+        "min-height": 600
+      }
+    }
+  }
+};
+
+
 // test 1
 test('#development', function (t) {
   t.plan(3);
@@ -31,7 +46,7 @@ test('#development', function (t) {
   t.deepEqual(Number(process.env.APP_PORT),
               conf.dev[1],
               'ports numbers should be equal');
-console.log(process.env.WINDOW_SIZE);
+
   t.deepEqual(process.env.WINDOW_SIZE,
               JSON.stringify(conf.dev[2]),
               'JSON objects should be equal');
@@ -68,7 +83,7 @@ test('#updated&reload', function (t) {
     }
   };
 
-  // give some timeout
+  // put some timeout
   setTimeout(function () {
     // write new configuration
     JSONFile.writeFileSync(new_config,

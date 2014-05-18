@@ -3,6 +3,7 @@ var JSONFile = require('json-tu-file');
 var format = require('util').format;
 var isJSON = require('is-json');
 var chokidar = require('chokidar');
+var arrToObject = require('array-to-object');
 
 
 // format string from array source
@@ -39,49 +40,60 @@ function args () {
   return obj;
 }
 
-// watch the env file if the arg `reload`
-// has the value true
-function watchFile (env, path, file) {
-  var watcher = chokidar.watch(file, {ignored: /[\/\\]\./, persistent: true});
-  watcher.on('change', function () {
-    watcher.close();
-    load(env, path, true);
-  });
+
+module.exports = function (options) {
+  // legacy, maintain 3 args
+  if (!isJSON(options, true)) {
+    options = arrToObject(['environment', 'path', 'reload'],
+                          Array.prototype.slice.call(arguments)) || {};
+
+    // in case passing only the path
+    if (options && fs.existsSync(options.environment)) {
+      options.path = options.environment;
+      options.environment = 'development';
+    }
+  }
+  return new Load(options);
+};
+
+
+// (environment, path, reload)
+// {environment: 'environment', path: 'path', reload: true || false}
+function Load (options) {
+  this._options = {
+    path: options.path || './config',
+    environment: options.environment || args().env || 'development',
+    reload: options.reload || false
+  };
+
+  this.init();
 }
 
-
-module.exports = load;
-
-function load (environment, path, reload) {
+Load.prototype.init = function () {
+  var self = this;
   var configs = {};
 
-  // in case passing only the path
-  if (fs.existsSync(environment)) {
-    path = environment;
-    environment = null;
-  }
+  fs.readdirSync(self._options.path).forEach(function (file) {
+    if (self._options.environment !== file.replace('.json', ''))
+      return null;
 
-  path = path || './config';
-  environment = environment || args().env || 'development';
-  reload = reload || false;
-
-
-  fs.readdirSync(path).forEach(function (file) {
-    if (environment !== file.replace('.json', '')) return;
-
-    var data = JSONFile.readFileSync(path + '/' + file);
-
-    if (!data) throw new Error('Uncaught error: check the json structure in config file');
-
-    // allow reload the config by updating the file
-    if (reload) watchFile(environment, path, path + '/' + file);
-
-    configs = data;
+    var data = JSONFile.readFileSync(self._options.path + '/' + file);
+    if (!data) throw new Error('Uncaught error: check the json structure in config file!');
+     configs = data;
   });
 
   Object.keys(configs).forEach(function (k) {
     process.env[k] = sprintf(configs[k].format, toArray(configs[k].value));
   });
 
-   return 1;
-}
+  // allow to reload the env configuration when the current file is updated
+  if (self._options.reload) {
+    var file = this._options.path + '/' + this._options.environment + '.json';
+    self._watcher = chokidar.watch(file, {ignored: /[\/\\]\./, persistent: true});
+    self._watcher.on('change', function () {
+      self._watcher.close();
+       self.init();
+    });
+  }
+};
+

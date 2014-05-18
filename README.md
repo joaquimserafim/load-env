@@ -8,25 +8,46 @@ Load your environment configuration in a easy way and call in your code only one
 
 
 
-**V1.2**
+**V1.3**
 
 Now can reload the environment configuration by change the config file.
+Attention, process.env convert all values to string,
+must cast in case isn't a string, ex:
+	
+	port number for your web server => 3000
+	
+	console.log(process.env.WEB_PORT);// is going be '3000'
+	console.log(Number(process.env.WEB_PORT));// is going be 3000
+	
+	
+	a JSON object with some options => {port: 4000, address: 'localhost'}
+	
+	console.log(process.env.NET_OPTIONS);
+	// is gonna be '{"port":4000,"address":"localhost"}'
+	// internally we are using JSON.stringify
+	
+	console.log(JSON.parse(process.env.NET_OPTIONS));
+	// is gonna be { port: 4000, address: 'localhost' }
 
 ####API
 
-    var load = require('load-env') || require('load-env')()
 
-    load([environment], [config_path])
+`var load = require('load-env')` or `require('load-env')()`
+  
+`load([environment], [config_path], [reload*])`
+
+***reload** accepts a bool (default to false/null), if wants to reload the
+	enviroment when the configuration file is updated then pass `true`.
+	
+
+from CLI: `node my_app --env heroku`
+
+in your app just need to make the require and call `load();`
+
+`--env` is mandatory in CLI
 
 
-    or from CLI: node my_app --env heroku
-
-    in your app: load();
-
-    --env is mandatory in CLI
-
-
-   **config** folder must be in your application current directory or can use [path]
+**config** folder must be in your application current directory or can use [path]
    to define the localization of your config files, and the files must have the exactly name as your environment (heroku.json will be env heroku).
 
    **Example:**
@@ -39,7 +60,7 @@ Now can reload the environment configuration by change the config file.
 
 
 
-####JSON
+####JSON strutucture for config file
 
  {"var_name": {"format": "", "value":""}}
 
@@ -82,3 +103,7 @@ Now can reload the environment configuration by change the config file.
 
        // CLI
        node my_app --env heroku
+       
+       
+
+#### Example with JSON objects in the configuration
